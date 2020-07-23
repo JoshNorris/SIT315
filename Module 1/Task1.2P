@@ -1,0 +1,51 @@
+// INPUT AND WIRING CHANGED DUE TO ISSUES WITH ANALOG TMP36 from Task M1.T1P
+// Approval in SIT315 Module1_Discussions on Tuesday July 21st, 2020 @ 2:09pm.
+
+#include <string.h>
+
+// Globals
+int pirPin;
+int ledPin;
+int ledState;
+int counter;
+
+void setup()
+{
+  // Setup Serial Monitor
+  Serial.begin(9600);
+
+  // Vars
+  pirPin = 2;
+  ledPin = 3;
+  ledState = 0;
+  counter = 0;
+  
+                                           
+  // Setup Pins
+  pinMode(2, INPUT);
+  pinMode(3, OUTPUT);
+  
+  // Setup Interrupt
+  attachInterrupt(digitalPinToInterrupt(pirPin), motionToggle, CHANGE);
+}
+
+void loop() {
+  // Counter for interrupt demo purpose
+  Serial.print(String(counter) + " ");
+  counter += 1;
+  delay(500);
+}
+    
+void motionToggle() {
+  Serial.print("\n");
+  Serial.print("INTERRUPTED - Motion ");
+  
+  ledState = !ledState;
+  digitalWrite(ledPin, ledState);
+  
+  if(ledState == 1) {
+  	Serial.println("Detected");
+  } else {
+    Serial.println("Gone.");
+  }
+}
