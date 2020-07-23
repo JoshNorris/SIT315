@@ -1,0 +1,76 @@
+#include <string.h>
+
+// Globals
+int rPirPin;
+int rPirLedPin;
+int rPirLedState;
+int bPirPin;
+int bPirLedPin;
+int bPirLedState;
+int counter;
+
+void setup()
+{
+  // Setup Serial Monitor
+  Serial.begin(9600);
+
+  // Vars
+  // Red PIR 
+  rPirPin = 2;
+  rPirLedPin = 6;
+  rPirLedState = 0;
+  // Blue PIR
+  bPirPin = 3;
+  bPirLedPin = 7;
+  bPirLedState = 0;
+  // General
+  counter = 0;
+  
+                                                                                                               
+  // Setup Pins
+  pinMode(rPirPin, INPUT);
+  pinMode(rPirLedPin, OUTPUT);
+  pinMode(bPirPin, INPUT);
+  pinMode(bPirLedPin, OUTPUT);
+  
+  
+  // Setup Interrupt
+  attachInterrupt(digitalPinToInterrupt(rPirPin), rMotionToggle, CHANGE);
+  attachInterrupt(digitalPinToInterrupt(bPirPin), bMotionToggle, CHANGE);
+  
+}
+
+void loop() {
+  // Counter for interrupt demo purpose
+  Serial.print(String(counter) + " ");
+  counter += 1;
+  delay(500);
+}
+    
+void rMotionToggle() {
+  Serial.print("\n");
+  Serial.print("INTERRUPTED - Red Motion ");
+  
+  rPirLedState = !rPirLedState;
+  digitalWrite(rPirLedPin, rPirLedState);
+  
+  if(rPirLedState == 1) {
+  	Serial.println("Detected");
+  } else {
+    Serial.println("Gone.");
+  }
+}
+
+void bMotionToggle() {
+  Serial.println();
+  Serial.print("INTERRUPTED - Blue Motion ");
+  
+  bPirLedState = !bPirLedState;
+  digitalWrite(bPirLedPin, bPirLedState);
+  
+  if(bPirLedState == 1) {
+  	Serial.println("Detected");
+  } else {
+    Serial.println("Gone.");
+  }
+}
