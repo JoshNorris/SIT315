@@ -1,0 +1,45 @@
+#include <string.h>
+int temp = 0;
+
+void setup()
+{
+  // Setup Serial Monitor
+  Serial.begin(9600);
+
+  // Setup Pins
+  pinMode(A0, INPUT);
+  pinMode(2, OUTPUT);
+  pinMode(3, OUTPUT);
+  pinMode(4, OUTPUT);
+}
+
+void loop()
+{
+  // Read temp in Degrees C
+  temp = (-40 + 0.488155 * (analogRead(A0) - 20)) + '\0';
+
+  Serial.print("Temp reading was: " + String(temp) + "C. Light should be ");
+  if(temp < 16) {
+    digitalWrite(2, HIGH);
+    digitalWrite(3, LOW);
+    digitalWrite(4, LOW);
+    Serial.println("BLUE for COLD.");
+  }else if(temp >= 16 && temp <= 25) {
+    digitalWrite(2, LOW);
+    digitalWrite(3, HIGH);
+    digitalWrite(4, LOW);
+    Serial.println("GREEN for WARM.");
+  } else if(temp > 25) {
+    digitalWrite(2, LOW);
+    digitalWrite(3, LOW);
+    digitalWrite(4, HIGH);
+    Serial.println("RED for HOT.");
+  } else {
+    digitalWrite(2, LOW);
+    digitalWrite(3, LOW);
+    digitalWrite(4, LOW);
+    Serial.println("ALL OFF due to ERROR.");
+  }
+  
+  delay(2000); // Delay a little bit to improve simulation performance
+}
