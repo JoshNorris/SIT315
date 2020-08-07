@@ -1,0 +1,86 @@
+#include <string.h>
+
+// Globals
+int rPirPin;
+int PirLedPin;
+int PirLedState;
+int bPirPin;  
+int counter;
+
+int tIntLED;
+const uint16_t tIntLoad = 0;
+const uint16_t tIntComp = 31250;
+
+void setup()
+{
+  // Setup Serial Monitor
+  Serial.begin(9600);
+
+  // Vars
+  // Red PIR 
+  rPirPin = 2;
+  PirLedPin = 6;
+  PirLedState = 0;
+  // Blue PIR
+  bPirPin = 3;
+
+  // General
+  counter = 0;
+  
+  // Timer Interrupt
+  tIntLED = PB5;
+                                                                                                               
+  // Setup Pins
+  pinMode(rPirPin, INPUT);
+  pinMode(PirLedPin, OUTPUT);
+  pinMode(bPirPin, INPUT);
+  
+  // Interrupt LED Setup
+  DDRB |= (1 << tIntLED);
+  
+  // Reset Timer1 Control in Reg A
+  TCCR1A = 0;
+  
+  // Set prescaler for timer interrupt
+  TCCR1B |= (1 << CS12);
+  TCCR1B &= ~(1 << CS11);
+  TCCR1B &= ~(1 << CS10);
+  
+  // Reset Timer1 and set its compare value
+  TCNT1 = tIntLoad;
+  OCR1A = tIntComp;
+  
+  // Enable Timer1 compare interrupt
+  TIMSK1 = (1 << OCIE1A);
+  
+  // Enabled global interruts
+  sei();
+  
+  // PCIs
+  // Mask pins for input
+  PCMSK2 = B00001100;
+  
+  // Clear PCI Flags
+  PCIFR = B00000000;
+  
+  // Enable PCIE Group (2)
+  PCICR = B00000100;
+}
+
+void loop() {
+  digitalWrite(PirLedPin, PirLedState);
+  
+  delay(500);
+}
+
+// Timer1 Interrupt ISR
+ISR(TIMER1_COMPA_vect) {
+  TCNT1 = tIntLoad;
+  PORTB ^= (1 << tIntLED); 
+}
+
+// PCI ISR
+ISR(PCINT2_vect) {
+  PirLedState = !PirLedState;
+  Serial.println("PCI Interrupt Triggered");
+}
